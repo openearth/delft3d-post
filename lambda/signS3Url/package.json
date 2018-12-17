@@ -9,6 +9,9 @@
   "author": "",
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "aws-sdk": "^2.373.0"
+    "aws-sdk": "^2.373.0",
+    "busboy": "^0.2.14",
+    "formidable": "^1.2.1",
+    "query-string": "^6.2.0"
   }
 }

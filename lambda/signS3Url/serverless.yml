@@ -21,16 +21,17 @@ provider:
   name: aws
   runtime: nodejs8.10
   region: eu-west-1
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:PutObject"
+        - "s3:PutObjectAcl"
+      Resource: "arn:aws:s3:::delft3d-post"
 
 # you can overwrite defaults here
 #  stage: dev
 
 # you can add statements to the Lambda function's IAM Role here
-iamRoleStatements:
-  - Effect: "Allow"
-    Action:
-      - "s3:PutObject"
-    Resource: "arn:aws:s3:::delft3d-post"
 
 #    - Effect: "Allow"
 #      Action:

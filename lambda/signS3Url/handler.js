@@ -1,45 +1,80 @@
 'use strict'
 
-var AWS = require('aws-sdk')
-var s3 = new AWS.S3()
-var bucketName = process.env.AWS_BUCKET_NAME
+const busboy = require('busboy')
+const AWS = require('aws-sdk')
+const qs = require('query-string')
 
-console.log(process.env)
+const s3 = new AWS.S3()
 
-module.exports.signS3Url = async (event, context) => {
-  if (!event.hasOwnProperty('contentType')) {
-    context.fail({ err: 'Missing contentType' })
+const bucketName = process.env.AWS_BUCKET_NAME
+
+function formData2Json(body, headers) {
+  // The AWS event contains unparsed form data.
+  // return a promise that parses the fields.
+
+  const promise = new Promise((resolve, reject) => {
+    const obj = {}
+    if (headers.hasOwnProperty('Content-Type')) {
+      // lowercase expected
+      headers['content-type'] = headers['Content-Type']
+    }
+
+    const bb = new busboy({headers});
+    bb
+      .on(
+        'field',
+        (fieldname, val) => {
+          obj[fieldname] = val
+        }
+      )
+    bb.on('finish', () => resolve(obj))
+    bb.end(body)
+  })
+  return promise
+}
+
+
+module.exports.signS3Url = async (event, context, callback) => {
+  let form = await formData2Json(event.body, event.headers)
+
+
+  let res = {
+    statusCode: 200,
+    headers: {}
   }
 
-  if (!event.hasOwnProperty('filePath')) {
-    context.fail({ err: 'Missing filePath' })
+  if (!form.hasOwnProperty('contentType')) {
+    res.body = 'Missing contentType'
+    res.statusCode = 400
+    callback(null, res)
+  }
+
+  if (!form.hasOwnProperty('filePath')) {
+    res.body = 'Missing filePath'
+    res.statusCode = 400
+    callback(null, res)
   }
 
   var params = {
     Bucket: bucketName,
-    Key: event.filePath,
+    Key: form.filePath,
     Expires: 3600,
-    ContentType: event.contentType
+    ContentType: form.contentType
   }
 
-  console.log('params', params, 'event', event, 'context', context)
-  s3.getSignedUrl('putObject', params, (err, url) => {
-    console.log(err, url, params)
-    if (err) {
-      context.fail(JSON.stringify({
-        stack: err.stack,
-        err: err
-      }))
-    } else {
-      const resp = {
-        headers: {
-          'Access-Control-Allow-Origin': 'http://localhost:8080',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Credentials': true,
-        },
-        url
-      }
-      context.succeed(resp)
-    }
-  })
+  // TODO, use a promise/callback for this, to capture error
+  const url = s3.getSignedUrl('putObject', params)
+  const obj = qs.parseUrl(url)
+  const result = {
+    signature: obj.query,
+    postEndpoint: obj.url
+  }
+
+  res.headers = {
+    'Access-Control-Allow-Origin': 'http://localhost:8080',
+    'Access-Control-Allow-Methods': 'POST',
+    'Access-Control-Allow-Credentials': true
+  }
+  res.body = JSON.stringify(result)
+  callback(null, res)
 }

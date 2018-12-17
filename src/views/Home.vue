@@ -11,6 +11,11 @@
   </div>
 </template>
 
+<style>
+  .home {
+  width: 100%;
+  }
+</style>
 <script>
 // @ is an alias to /src
 import VueDropzone from 'vue2-dropzone'
