@@ -59,7 +59,7 @@ environment:
 
 functions:
   signS3Url:
-    handler: handler.signS3Url
+    handler: handler.signS3Url2
     environment:
       AWS_BUCKET_NAME: delft3d-post
     events:

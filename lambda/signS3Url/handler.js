@@ -8,6 +8,7 @@ const s3 = new AWS.S3()
 
 const bucketName = process.env.AWS_BUCKET_NAME
 
+
 function formData2Json(body, headers) {
   // The AWS event contains unparsed form data.
   // return a promise that parses the fields.
@@ -77,4 +78,38 @@ module.exports.signS3Url = async (event, context, callback) => {
   }
   res.body = JSON.stringify(result)
   callback(null, res)
+}
+
+module.exports.signS3Url2 = (event, context) => {
+  console.log('event', event)
+  console.log('context', context)
+  const req = JSON.parse(event.body)
+  if (!req.hasOwnProperty('contentType')) {
+    context.fail('Missing contentType')
+  }
+
+  if (!req.hasOwnProperty('filePath')) {
+    context.fail('Missing filePath')
+  }
+
+  console.log('check')
+  var params = {
+    Bucket: bucketName,
+    Key: req.filePath,
+    Expires: 3600,
+    ContentType: req.contentType
+  }
+
+  const url = s3.getSignedUrl('putObject', params)
+  const resp = {
+    statusCode: 200,
+    headers: {
+      'Access-Control-Allow-Origin': 'http://localhost:8080',
+      'Access-Control-Allow-Methods': 'POST',
+      'Access-Control-Allow-Credentials': true
+    },
+    body: JSON.stringify({url})
+  }
+  console.log('resp', resp)
+  context.succeed(resp)
 }
