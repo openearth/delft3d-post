@@ -1,6 +1,6 @@
 <template>
 
-   <v-app id="app" dark>
+   <v-app id="app" >
     <v-navigation-drawer
       v-model="drawer"
       clipped

@@ -3,6 +3,7 @@ import axios from 'axios'
 const AWS_LAMBDA_GETSIGNEDURL_ENDPOINT = 'https://6r52av33yb.execute-api.eu-west-1.amazonaws.com/dev/delft3d-post'
 
 export default {
+  AWS_LAMBDA_GETSIGNEDURL_ENDPOINT,
   getSignedURL (file) {
     let endpoint = AWS_LAMBDA_GETSIGNEDURL_ENDPOINT
     let payload = {

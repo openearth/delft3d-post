@@ -26,7 +26,7 @@ provider:
       Action:
         - "s3:PutObject"
         - "s3:PutObjectAcl"
-      Resource: "arn:aws:s3:::delft3d-post"
+      Resource: "arn:aws:s3:::delft3d-post/*"
 environment:
   AWS_BUCKET_NAME: delft3d-post
 
