@@ -15,7 +15,7 @@ import ProgressBar from '@uppy/progress-bar'
 import ms from 'ms'
 
 import '@uppy/core/dist/style.css'
-import '@uppy/drag-drop/dist/style.css'
+import '@uppy/dashboard/dist/style.css'
 
 export default {
   props: {
@@ -65,6 +65,8 @@ export default {
     })
 
     this.uppy.use(Dashboard, {
+      height: '300px',
+      inline: true,
       target: '.dashboard'
     })
   },
